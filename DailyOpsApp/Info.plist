@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleAllowMixedLocalizations</key>
+	<true/>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>DailyOps</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIconName</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleLocalizations</key>
+	<array>
+		<string>en</string>
+	</array>
+	<key>CFBundleName</key>
+	<string>$(PRODUCT_NAME)</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>LSUIElement</key>
+	<false/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>DailyOps accesses your calendar to view and create events when you use calendar voice commands.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>DailyOps accesses your contacts to resolve recipient names when you ask to message someone on WhatsApp.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>DailyOps uses the microphone to transcribe your speech, entirely on-device.</string>
+	<key>NSRemindersUsageDescription</key>
+	<string>DailyOps accesses your reminders to view and create reminders when you use reminders voice commands.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>DailyOps uses Apple on-device speech recognition when you choose Apple Speech or Automatic mode.</string>
+</dict>
+</plist>

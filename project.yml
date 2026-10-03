@@ -1,0 +1,104 @@
+name: DailyOps
+options:
+  bundleIdPrefix: com.akshaywesley
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  targetArchs:
+    - arm64
+
+settings:
+  base:
+    ARCHS: "arm64"
+    VALID_ARCHS: "arm64"
+    ONLY_ACTIVE_ARCH: YES
+  configs:
+    Debug:
+      ARCHS: "arm64"
+      ONLY_ACTIVE_ARCH: YES
+    Release:
+      ARCHS: "arm64"
+      ONLY_ACTIVE_ARCH: YES
+
+packages:
+  FluidAudio:
+    url: https://github.com/FluidInference/FluidAudio
+    from: 0.15.5
+  WhisperKit:
+    url: https://github.com/argmaxinc/WhisperKit
+    from: 1.0.0
+
+targets:
+  DailyOps:
+    type: application
+    platform: macOS
+    sources:
+      - DailyOpsApp/Sources
+      - path: DailyOpsApp/Resources
+        buildPhase: resources
+    dependencies:
+      - package: FluidAudio
+      - package: WhisperKit
+    info:
+      path: DailyOpsApp/Info.plist
+      properties:
+        CFBundleDisplayName: DailyOps
+        CFBundleIconFile: AppIcon
+        CFBundleIconName: AppIcon
+        CFBundleShortVersionString: 1.0.0
+        CFBundleLocalizations: [en]
+        CFBundleAllowMixedLocalizations: true
+        LSUIElement: false
+        NSMicrophoneUsageDescription: DailyOps uses the microphone to transcribe your speech, entirely on-device.
+        NSSpeechRecognitionUsageDescription: DailyOps uses Apple on-device speech recognition when you choose Apple Speech or Automatic mode.
+        NSContactsUsageDescription: DailyOps accesses your contacts to resolve recipient names when you ask to message someone on WhatsApp.
+        NSCalendarsUsageDescription: DailyOps accesses your calendar to view and create events when you use calendar voice commands.
+        NSRemindersUsageDescription: DailyOps accesses your reminders to view and create reminders when you use reminders voice commands.
+        LSMinimumSystemVersion: "14.0"
+    settings:
+      base:
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Built ad-hoc, then re-signed with the real Apple Development identity
+        # by scripts/install.sh — a stable signature keeps TCC permission
+        # grants (Accessibility, mic) intact across rebuilds.
+        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_STYLE: Manual
+        DEVELOPMENT_TEAM: ""
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_ENTITLEMENTS: DailyOpsApp/DailyOps.entitlements
+        ENABLE_APP_SANDBOX: NO
+        SWIFT_VERSION: "6.0"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ARCHS: "arm64"
+        GENERATE_INFOPLIST_FILE: NO
+        PRODUCT_NAME: DailyOps
+        PRODUCT_MODULE_NAME: DailyOps
+
+  DailyOpsTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests
+    dependencies:
+      - target: DailyOps
+    settings:
+      base:
+        SWIFT_VERSION: "6.0"
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+        ARCHS: "arm64"
+        GENERATE_INFOPLIST_FILE: YES
+        # XcodeGen derives TEST_HOST from the *target* name (DailyOps), but the
+        # app target renames its product to "DailyOps", so the default path
+        # points at a DailyOps.app that is never built. Point at the real one.
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/DailyOps.app/Contents/MacOS/DailyOps"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  DailyOps:
+    build:
+      targets:
+        DailyOps: all
+        DailyOpsTests: [test]
+    test:
+      targets:
+        - DailyOpsTests
