@@ -19,7 +19,7 @@ DailyOps combines desktop dictation, native voice commands, and a workspace for 
 | Native voice commands | Application and browser actions, custom commands, WhatsApp recipient resolution, Calendar, and Reminders command paths |
 | DailyOps workspace | Goal input, role selection, activity and task status, approvals, and unfinished-session controls |
 | Roles | Developer, Manager, Designer, and General |
-| Agent tools | Open an application, get the current time, inspect basic system status, and create a local note |
+| Agent tools | Open apps, configured folders and HTTP/HTTPS URLs; read Git status/branch; read or replace clipboard with approval; current time, system status and local notes |
 | Persistence | Schema v2 snapshots, exact tool parameters, checkpointing, restoration assessment, and explicit resume |
 | Branding | Appearance-aware in-app branding and a complete macOS AppIcon asset catalog |
 
@@ -32,6 +32,18 @@ Choose a role, type or speak a goal, and inspect the resulting plan and activity
 The eight built-in starters are **Start My Workday**, **Prepare for Tomorrow's Review**, **Prepare My Standup**, **Prioritize My Day**, **Prepare for My Next Meeting**, **Check My Blockers**, **End My Workday**, and **Review My Active Work**.
 
 These are entry points, not eight independently complete integrations. The planner has dedicated workday and review branches plus application-launch and local-note handling; other inputs may produce generic tasks. Some role plans contain descriptive tasks without executable tools. References such as `github_issues` and `calendar_events` are not registered agent tools and can be reported as unsupported. Calendar and Reminders support in the separate native command engine does not connect them to the agent registry.
+
+### Voice and Work Setups (Phase 6A)
+
+Enable Command Mode and use the existing hold-to-talk key (Fn/Globe or your configured hotkey). Exact recognized requests use an offline, deterministic router; other speech continues through the existing command/dictation pipeline.
+
+- **“Open VS Code”**, **“open Terminal”**, **“open Safari”**: launch the named app through the local tool registry.
+- **“Open my developer setup”**, **“start my manager setup”**, **“open my work setup”**: run the selected role's ordered setup. Uninstalled optional apps are skipped with an explanation in Agent Activity.
+- **“Open my DailyOps project”**: open the active role's configured folder in its editor (or Finder).
+- **“Open the DailyOps project and check git status”**: open that folder and report read-only Git status. Configure the folder first in **Work Setups**; no project path is guessed.
+- **“Prepare my standup”**: plan Git status and branch inspection for the configured project. **“Start my workday”** continues using the existing role planner. Goal plans remain available for explicit execution in Workspace.
+
+Work Setups contains editable Developer, Manager, Designer and General defaults. Configure the project folder, editor, workflow name, custom voice phrase, apps and optional URLs; enable, disable or reorder steps, then save. Profiles persist in DailyOps preferences. Safe setup actions execute through the existing runtime; approval and explicit-resume behavior remain intact. Clipboard tools require confirmation. There is no general shell tool or cloud router.
 
 ### Resume safely
 

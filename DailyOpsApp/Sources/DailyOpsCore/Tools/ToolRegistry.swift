@@ -44,27 +44,34 @@ public final class ToolRegistry: @unchecked Sendable {
         register(GetCurrentTimeTool())
         register(CreateLocalNoteTool())
         register(SystemStatusTool())
+        register(OpenPathTool())
+        register(OpenURLTool())
+        register(GitStatusTool())
+        register(GitBranchTool())
+        register(ReadClipboardTool())
+        register(CopyToClipboardTool())
     }
 }
 
-private struct OpenApplicationTool: DailyOpsTool {
-    let id = "open_application"
-    let name = "Open Application"
-    let description = "Launch a macOS application by name"
-    let category: ToolCategory = .system
-    let riskLevel: ActionRiskLevel = .safe
+public struct OpenApplicationTool: DailyOpsTool {
+    public init() {}
+    public let id = "open_application"
+    public let name = "Open Application"
+    public let description = "Launch a macOS application by name"
+    public let category: ToolCategory = .system
+    public let riskLevel: ActionRiskLevel = .safe
 
-    func execute(parameters: [String: String]) async throws -> ToolResult {
+    public func execute(parameters: [String: String]) async throws -> ToolResult {
         guard let appName = parameters["application"] else {
-            return ToolResult(success: false, error: "Missing 'application' parameter")
+            return ToolResult(success: false, error: "Missing application parameter")
         }
-        let workspace = NSWorkspace.shared
-        let success = workspace.launchApplication(appName)
-        return ToolResult(
-            success: success,
-            output: success ? "Launched \(appName)" : "Failed to launch \(appName)",
-            error: success ? nil : "Application not found"
-        )
+        return await MainActor.run {
+            guard let path = NSWorkspace.shared.fullPath(forApplication: appName) else {
+                return ToolResult(success: false, error: "Application unavailable: \(appName)")
+            }
+            let success = NSWorkspace.shared.launchApplication(path)
+            return ToolResult(success: success, output: success ? "Launched \(appName)" : nil, error: success ? nil : "Could not launch \(appName)")
+        }
     }
 }
 

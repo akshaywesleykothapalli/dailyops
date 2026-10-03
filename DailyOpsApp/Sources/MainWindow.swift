@@ -6,6 +6,7 @@ enum MainTab: Hashable {
     case dictation
     case insights
     case dictionary
+    case workSetups
     case commandMode
     case formatting
     case privacy
@@ -17,6 +18,7 @@ enum MainTab: Hashable {
         case .dictation: "Dictation"
         case .insights: "Insights"
         case .dictionary: "Dictionary"
+        case .workSetups: "Work Setups"
         case .commandMode: "Command Mode"
         case .formatting: "Smart Formatting"
         case .privacy: "Privacy"
@@ -30,6 +32,7 @@ enum MainTab: Hashable {
         case .dictation: "mic"
         case .insights: "chart.bar"
         case .dictionary: "book"
+        case .workSetups: "desktopcomputer"
         case .commandMode: "command.square"
         case .formatting: "wand.and.stars"
         case .privacy: "lock"
@@ -43,6 +46,7 @@ enum MainTab: Hashable {
         case .dictation: "mic.fill"
         case .insights: "chart.bar.fill"
         case .dictionary: "book.fill"
+        case .workSetups: "desktopcomputer"
         case .commandMode: "command.square.fill"
         case .formatting: "wand.and.stars.inverse"
         case .privacy: "lock.fill"
@@ -60,6 +64,7 @@ enum MainTab: Hashable {
         case .dictation: .dictation
         case .insights: .insights
         case .dictionary: .dictionary
+        case .workSetups: .workSetups
         case .commandMode: .commandMode
         case .formatting: .smartFormatting
         case .privacy: .privacy
@@ -157,6 +162,7 @@ private struct DailyOpsSidebar: View {
         .insights,
         .dictionary,
         .commandMode,
+        .workSetups,
         .formatting,
         .privacy,
         .general,

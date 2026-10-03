@@ -1,4 +1,5 @@
 import Foundation
+import AppKit
 
 public struct RuntimeResult: Sendable, Codable {
     public let goal: DailyOpsGoal
@@ -56,7 +57,18 @@ public final class DailyOpsRuntime: Sendable {
 
         do {
             let availableTools = toolRegistry.allTools()
-            let plan = try await plannerAgent.generatePlan(for: goal, roleProfile: roleProfile, availableTools: availableTools)
+            let voiceDecision = VoiceIntentRouter().route(text, role: role, profiles: RoleWorkspaceStore.shared.load())
+            let plan: DailyOpsPlan
+            if [.directCommand, .roleWorkflow, .localAgentTask].contains(voiceDecision.kind) {
+                let availability = await MainActor.run {
+                    Dictionary(voiceDecision.steps.filter { $0.kind == .application }.map {
+                        ($0.value, NSWorkspace.shared.fullPath(forApplication: $0.value) != nil)
+                    }, uniquingKeysWith: { first, _ in first })
+                }
+                plan = LocalAgentTaskPlanner().plan(voiceDecision, goalID: goal.id, applicationAvailability: availability)
+            } else {
+                plan = try await plannerAgent.generatePlan(for: goal, roleProfile: roleProfile, availableTools: availableTools)
+            }
 
             var goalWithPlan = goal
             goalWithPlan.planID = plan.id

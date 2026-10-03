@@ -238,13 +238,16 @@ enum CommandModeService {
     /// Processes a transcript through the command engine, returning its full outcome.
     @MainActor
     static func processTranscript(_ transcript: String, controller: DictationController) -> CommandEngineOutcome {
-        if isEnabled, let agentGoal = AgentActivation.matchGoal(transcript) {
+        if isEnabled, engine(for: controller).pendingConfirmation == nil,
+           AgentSessionController.shared.voiceDecision(transcript).kind != .dictation,
+           AgentActivation.matchGoal(transcript) != nil || CustomCommandStore.shared.findMatching(transcript: transcript) == nil {
             let session = AgentSessionController.shared
+            guard session.canAcceptVoiceIntent else { return .failed(message: "DailyOps is busy. Finish or approve the current action first.") }
             Task {
-                await session.submitGoal(agentGoal, source: .voice)
+                await session.handleVoiceIntent(session.voiceDecision(transcript), transcript: transcript)
             }
             MainWindow.show(controller: controller, selectedTab: .workspace)
-            return .executed(feedback: "DailyOps: Planned '\(agentGoal)' for \(session.activeRole.displayName)")
+            return .executed(feedback: "DailyOps: Received \(session.voiceDecision(transcript).action)")
         }
         if isEnabled, let custom = CustomCommandStore.shared.findMatching(transcript: transcript) {
             let result = CustomCommandExecutor.shared.execute(custom)
@@ -266,11 +269,14 @@ enum CommandModeService {
     /// Asynchronously processes a transcript through the command engine.
     @MainActor
     static func processTranscriptAsync(_ transcript: String, controller: DictationController) async -> CommandEngineOutcome {
-        if isEnabled, let agentGoal = AgentActivation.matchGoal(transcript) {
+        if isEnabled, engine(for: controller).pendingConfirmation == nil,
+           AgentSessionController.shared.voiceDecision(transcript).kind != .dictation,
+           AgentActivation.matchGoal(transcript) != nil || CustomCommandStore.shared.findMatching(transcript: transcript) == nil {
             let session = AgentSessionController.shared
-            _ = await session.submitGoal(agentGoal, source: .voice)
+            guard session.canAcceptVoiceIntent else { return .failed(message: "DailyOps is busy. Finish or approve the current action first.") }
+            await session.handleVoiceIntent(session.voiceDecision(transcript), transcript: transcript)
             MainWindow.show(controller: controller, selectedTab: .workspace)
-            return .executed(feedback: "DailyOps: Planned '\(agentGoal)' for \(session.activeRole.displayName)")
+            return .executed(feedback: "DailyOps: Received \(session.voiceDecision(transcript).action)")
         }
         if isEnabled, let custom = CustomCommandStore.shared.findMatching(transcript: transcript) {
             let result = CustomCommandExecutor.shared.execute(custom)
@@ -311,13 +317,16 @@ enum CommandModeService {
     /// continue with the transcript untouched.
     @MainActor
     static func execute(_ transcript: String, controller: DictationController) -> String? {
-        if isEnabled, let agentGoal = AgentActivation.matchGoal(transcript) {
+        if isEnabled, engine(for: controller).pendingConfirmation == nil,
+           AgentSessionController.shared.voiceDecision(transcript).kind != .dictation,
+           AgentActivation.matchGoal(transcript) != nil || CustomCommandStore.shared.findMatching(transcript: transcript) == nil {
             let session = AgentSessionController.shared
+            guard session.canAcceptVoiceIntent else { return "DailyOps is busy. Finish or approve the current action first." }
             Task {
-                await session.submitGoal(agentGoal, source: .voice)
+                await session.handleVoiceIntent(session.voiceDecision(transcript), transcript: transcript)
             }
             MainWindow.show(controller: controller, selectedTab: .workspace)
-            return "DailyOps: Planned '\(agentGoal)' for \(session.activeRole.displayName)"
+            return "DailyOps: Received \(session.voiceDecision(transcript).action)"
         }
         if isEnabled, let custom = CustomCommandStore.shared.findMatching(transcript: transcript) {
             let result = CustomCommandExecutor.shared.execute(custom)

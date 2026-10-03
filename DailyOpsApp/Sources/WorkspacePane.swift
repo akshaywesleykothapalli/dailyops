@@ -16,6 +16,10 @@ struct WorkspacePane: View {
             VStack(alignment: .leading, spacing: SettingsDesign.sectionSpacing) {
                 // MARK: - Header
                 workspaceHeader
+                if let intent = session.latestVoiceIntent {
+                    Text("Voice · \(intent.kind.rawValue) · \(intent.action)")
+                        .font(.callout).foregroundStyle(.secondary)
+                }
 
                 // MARK: - Unfinished Session (if any)
                 unfinishedSessionSection

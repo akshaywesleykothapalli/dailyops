@@ -23,6 +23,12 @@ public final class DeterministicPlannerAgent: PlannerAgent {
             }
         }
 
+        if normalizedIntent == "prepare my standup" {
+            let profile = RoleWorkspaceStore.shared.load().first { $0.role == roleProfile.role } ?? .defaults(roleProfile.role)
+            return [DailyOpsTask(title: "Read project status for standup", description: "Read configured project changes", order: 0, toolRequirement: ToolRequirement(toolId: "git_status", riskLevel: .safe, parameters: ["path": profile.defaultProjectPath])),
+                    DailyOpsTask(title: "Read current branch", description: "Read configured project branch", order: 1, toolRequirement: ToolRequirement(toolId: "git_branch", riskLevel: .safe, parameters: ["path": profile.defaultProjectPath]))]
+        }
+
         // Open application command (e.g. "open safari")
         if normalizedIntent.contains("open safari") || normalizedIntent == "open safari" || normalizedIntent == "safari" {
             return [DailyOpsTask(

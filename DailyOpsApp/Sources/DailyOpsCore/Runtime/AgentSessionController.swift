@@ -93,6 +93,8 @@ public final class AgentSessionController {
     public let roleEngine: RoleEngine
     public let executionEngine: PlanExecutionEngine
 
+    public private(set) var latestVoiceIntent: VoiceIntentDecision?
+
     public private(set) var currentGoal: DailyOpsGoal?
     public private(set) var currentPlan: DailyOpsPlan?
     public private(set) var routingDecision: RoutingDecision?
@@ -135,6 +137,10 @@ public final class AgentSessionController {
 
     /// Any error encountered during resumption attempt.
     public private(set) var resumeError: String?
+
+    public var canAcceptVoiceIntent: Bool {
+        !isProcessing && !isResuming && executionState != .inProgress && executionState != .waitingForApproval
+    }
 
     public var isExecuting: Bool {
         executionState == .inProgress
@@ -244,6 +250,9 @@ public final class AgentSessionController {
 
         if let plan = result.plan {
             self.executionState = plan.executionState
+            for task in plan.tasks where task.status == .skipped {
+                activityStages.append(AgentActivityItem(stage: .taskUnsupported, detail: task.error, status: .warning))
+            }
 
             // Start new persistence session for this goal
             self.sessionID = checkpointCoordinator.startNewSession()
@@ -301,6 +310,19 @@ public final class AgentSessionController {
 
         isProcessing = false
         return result
+    }
+
+    /// Shared post-STT route used by every Command Mode entry point.
+    public func voiceDecision(_ transcript: String, enabled: Bool = true) -> VoiceIntentDecision {
+        VoiceIntentRouter().route(transcript, role: activeRole, profiles: RoleWorkspaceStore.shared.load(), enabled: enabled)
+    }
+
+    public func handleVoiceIntent(_ decision: VoiceIntentDecision, transcript: String) async {
+        guard decision.kind != .dictation, canAcceptVoiceIntent else { return }
+        latestVoiceIntent = decision
+        if decision.kind == .roleWorkflow { setRole(decision.role) }
+        _ = await submitGoal(transcript, source: .voice)
+        if decision.kind != .dailyOpsGoal, error == nil { await executePlan() }
     }
 
     /// Executes the current plan using the PlanExecutionEngine.

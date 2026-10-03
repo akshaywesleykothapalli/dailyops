@@ -35,6 +35,8 @@ struct SettingsView: View {
                 search: $dictionarySearch,
                 showingAddSheet: $showingDictionaryAdd
             )
+        case .workSetups:
+            WorkSetupsPane()
         case .commandMode:
             CommandModePane()
         case .smartFormatting:
