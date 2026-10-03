@@ -21,6 +21,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             // every test run would register the global hotkey, warm speech
             // models and open windows. Production startup is unchanged.
             guard !AppStartup.isTestHost else { return }
+            // Refresh the running Dock tile from this bundle rather than a stale
+            // Launch Services icon cached under the unchanged app identity.
+            if let iconURL = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
+               let icon = NSImage(contentsOf: iconURL) {
+                NSApp.applicationIconImage = icon
+            }
             if !SelfTest.runIfRequested() {
                 DictationController.shared.start()
                 if UserDefaults.standard.bool(forKey: "hasOnboarded") {
